@@ -3,6 +3,19 @@ const SINGLE_CHUNK_LIMIT = 80;
 const MULTI_CHUNK_LIMIT = 40;
 const MIN_MULTI_CHUNKS = 2;
 const MAX_MULTI_CHUNKS = 8;
+const TWO_WORD_PART_LIMIT = 12;
+const TWO_WORD_COMMON_FREQUENCY = 80000000;
+const EXTRA_DICTIONARY_WORDS = {
+  asshole: 500000,
+  dumbass: 400000,
+  eatingdisorder: 100000,
+  fentanyl: 400000,
+  ketamine: 400000,
+  selfharm: 400000,
+  selfinjury: 100000,
+  transphobic: 200000,
+  xanax: 400000,
+};
 const MAX_CHARS = 4000;
 const EXTERIOR = "\"'“”‘’()[]{}<>.,;:";
 const ZERO_WIDTH = new Set(["\u200b", "\u200c", "\u200d", "\ufeff"]);
@@ -280,7 +293,8 @@ class Lexicon {
   }
 
   frequency(term) {
-    return this.symspell.words.get(pythonCasefold(term)) || 0;
+    const key = pythonCasefold(term);
+    return EXTRA_DICTIONARY_WORDS[key] || this.symspell.words.get(key) || 0;
   }
 }
 
@@ -299,7 +313,7 @@ function trimWindow(text, start, end) {
   return [start, end];
 }
 
-function enumerateWindows(text) {
+function enumerateWindows(text, lexicon) {
   const matches = [...text.matchAll(CHUNK_RE)];
   const stats = { over_limit_chunks: 0, over_limit_windows: 0 };
   const output = [];
@@ -346,6 +360,25 @@ function enumerateWindows(text) {
       }
     }
   }
+  if (lexicon) {
+    for (let i = 0; i < trimmed.length - 1; i++) {
+      const left = trimmed[i];
+      const right = trimmed[i + 1];
+      const leftPart = left[2];
+      const rightPart = right[2];
+      if (!/^[A-Za-z]+$/.test(leftPart) || !/^[A-Za-z]+$/.test(rightPart)) continue;
+      if (leftPart.length > TWO_WORD_PART_LIMIT || rightPart.length > TWO_WORD_PART_LIMIT) continue;
+      const start = left[0];
+      const end = right[1];
+      if (end - start > MULTI_CHUNK_LIMIT) {
+        stats.over_limit_windows += 1;
+        continue;
+      }
+      const compact = (leftPart + rightPart).toLocaleLowerCase("en");
+      if (!lexicon.frequency(compact)) continue;
+      add(start, end, leftPart + rightPart, ["separated_letters"]);
+    }
+  }
   return [output, stats];
 }
 
@@ -362,8 +395,8 @@ function nuisance(text, start, end) {
   return flags;
 }
 
-function detectStructural(text) {
-  const [windows] = enumerateWindows(text);
+function detectStructural(text, lexicon) {
+  const [windows] = enumerateWindows(text, lexicon);
   const spans = [];
   for (const window of windows) {
     const surface = window.surface;
@@ -573,12 +606,19 @@ function cautionText(flags) {
   return notes.join("; ");
 }
 
-function reviewCandidates(candidates) {
+function reviewCandidates(candidates, lexicon) {
   return candidates.filter((candidate) => {
     if (candidate.rule_ids.includes("separated_letters")) {
-      const compact = candidate.surface.split(/\s+/).join("").toLocaleLowerCase("en");
+      const parts = candidate.surface.split(/\s+/).filter(Boolean);
+      const compact = parts.join("").toLocaleLowerCase("en");
       const top3 = (candidate.top3 || []).map((term) => String(term).toLocaleLowerCase("en"));
       if (!top3.length || top3[0] !== compact) return false;
+      if (parts.length === 2 && lexicon) {
+        const freqs = parts.map((part) => lexicon.frequency(part));
+        const bothWords = freqs.every((freq) => freq > 0);
+        const oneCommon = Math.max(...freqs) >= TWO_WORD_COMMON_FREQUENCY;
+        if (bothWords && oneCommon && !EXTRA_DICTIONARY_WORDS[compact]) return false;
+      }
     }
     return true;
   });
@@ -588,7 +628,7 @@ export function scanText(text, lexicon) {
   let cleaned = (text || "").replace(/\r\n/g, "\n").replace(/\r/g, "\n");
   const truncated = [...cleaned].length > MAX_CHARS;
   if (truncated) cleaned = [...cleaned].slice(0, MAX_CHARS).join("");
-  const spans = detectStructural(cleaned);
+  const spans = detectStructural(cleaned, lexicon);
   const union = new Map();
   for (const span of spans) {
     const key = `${span.start}|${span.end}`;
@@ -616,7 +656,7 @@ export function scanText(text, lexicon) {
       nuisance_flags: [...new Set(itemSpans.flatMap((s) => s.nuisance_flags))].sort(),
     };
   });
-  const rows = reviewCandidates(candidates).map((candidate) => ({
+  const rows = reviewCandidates(candidates, lexicon).map((candidate) => ({
     surface: candidate.surface,
     start: candidate.start,
     end: candidate.end,
