@@ -6,7 +6,7 @@ const status = document.getElementById("status");
 const scanButton = document.getElementById("scan");
 const tableBody = document.querySelector("#table tbody");
 
-const DEFAULT_TEXT = "Please notice how h3llo and w0rld can hide inside l33t $peak, how an @ltered $pelling or un.us.ual m!xed t#xt can still be read, how s p a c e d letters and 4lphanumeric 5ubstitutions keep the original word in view, and how intern.al punc.tuation, a lookalike pаssw0rd, a d0llar, a c@t, a b00k, some t7ext, and n.o.t.e.s all count as altered words in this paragraph.";
+const DEFAULT_TEXT = "Please notice how f*ck, sh!t, and b1tch can hide behind f.u.c.k or bi.tch, how p0rn, n*de, and s3xual content can still be read, how k1ll, murd3r, and a lookalike kіll keep the original word in view, and how c0caine, her01n, mar1juana, su1cide, n@zi, and r@cist all count as altered words in this paragraph.";
 
 let lexicon = null;
 
