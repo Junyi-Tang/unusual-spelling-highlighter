@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Unusual spelling highlighter</title>
+  <meta name="description" content="Classifier for structurally unusual spellings, with curated v1 benchmark results and missed forms.">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="banner">
+    <div class="wrap">
+      <h1>Unusual spelling highlighter</h1>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="workspace" aria-label="Classifier">
+      <div class="pane">
+        <h2>Text</h2>
+        <label class="sr-only" for="input">Text to scan</label>
+        <textarea id="input" maxlength="4000" rows="8" spellcheck="false"></textarea>
+      </div>
+      <div class="pane">
+        <h2>Marked spellings</h2>
+        <div id="output" class="output" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <div class="controls">
+      <button type="button" id="scan" class="primary" disabled>Scan</button>
+      <p id="status">Loading dictionary.</p>
+    </div>
+
+    <section class="results">
+      <div class="table-wrap">
+        <table id="table">
+          <thead>
+            <tr>
+              <th>Marked spelling</th>
+              <th>Guessed ordinary word</th>
+              <th>Why it looks unusual</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="benchmark" aria-label="Benchmark">
+      <h2>Benchmark: curated v1</h2>
+      <table>
+        <thead>
+          <tr>
+            <th></th>
+            <th>Predicted altered</th>
+            <th>Predicted ordinary</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Actually altered</th>
+            <td class="good">TP 167</td>
+            <td class="bad">FN 33</td>
+          </tr>
+          <tr>
+            <th scope="row">Actually ordinary control</th>
+            <td class="good">FP 0</td>
+            <td class="good">TN 100</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>Case-level exact recall: 83.5%. Span-level precision: 96.0%. All 33 misses are internal spacing splits.</p>
+      <div class="bench-toolbar">
+        <div class="bench-filters" role="group" aria-label="Benchmark filter">
+          <button type="button" data-bench-filter="all" aria-pressed="true">All 300</button>
+          <button type="button" data-bench-filter="hit" aria-pressed="false">Detected 167</button>
+          <button type="button" data-bench-filter="miss" aria-pressed="false">Missed 33</button>
+          <button type="button" data-bench-filter="clear" aria-pressed="false">Controls 100</button>
+        </div>
+        <label class="bench-search">
+          <span class="sr-only">Search curated forms</span>
+          <input id="bench-query" type="search" placeholder="Search form, target, or id">
+        </label>
+      </div>
+      <p id="bench-count" class="note"></p>
+      <div class="table-wrap bench-list">
+        <table id="bench">
+          <thead>
+            <tr>
+              <th>Case</th>
+              <th>Surface</th>
+              <th>Canonical</th>
+              <th>Category</th>
+              <th>Mechanism</th>
+              <th>Result</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
