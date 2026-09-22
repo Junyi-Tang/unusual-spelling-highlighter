@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Unusual spelling highlighter</title>
-  <meta name="description" content="Classifier for structurally unusual spellings, with curated v1 benchmark results and missed forms.">
+  <meta name="description" content="Classifier for structurally unusual spellings.">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="stylesheet" href="styles.css">
 </head>
@@ -41,60 +41,6 @@
               <th>Marked spelling</th>
               <th>Guessed ordinary word</th>
               <th>Why it looks unusual</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
-    </section>
-
-    <section class="benchmark" aria-label="Benchmark">
-      <h2>Benchmark: curated v1</h2>
-      <table>
-        <thead>
-          <tr>
-            <th></th>
-            <th>Predicted altered</th>
-            <th>Predicted ordinary</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <th scope="row">Actually altered</th>
-            <td class="good">TP 200</td>
-            <td class="good">FN 0</td>
-          </tr>
-          <tr>
-            <th scope="row">Actually ordinary control</th>
-            <td class="good">FP 0</td>
-            <td class="good">TN 100</td>
-          </tr>
-        </tbody>
-      </table>
-      <p>Case-level recall: 100%. Span-level precision: 98.5%. The previous 33 internal spacing splits are now detected.</p>
-      <div class="bench-toolbar">
-        <div class="bench-filters" role="group" aria-label="Benchmark filter">
-          <button type="button" data-bench-filter="all" aria-pressed="true">All 300</button>
-          <button type="button" data-bench-filter="hit" aria-pressed="false">Detected 200</button>
-          <button type="button" data-bench-filter="miss" aria-pressed="false">Missed 0</button>
-          <button type="button" data-bench-filter="clear" aria-pressed="false">Controls 100</button>
-        </div>
-        <label class="bench-search">
-          <span class="sr-only">Search curated forms</span>
-          <input id="bench-query" type="search" placeholder="Search form, target, or id">
-        </label>
-      </div>
-      <p id="bench-count" class="note"></p>
-      <div class="table-wrap bench-list">
-        <table id="bench">
-          <thead>
-            <tr>
-              <th>Case</th>
-              <th>Surface</th>
-              <th>Canonical</th>
-              <th>Category</th>
-              <th>Mechanism</th>
-              <th>Result</th>
             </tr>
           </thead>
           <tbody></tbody>
