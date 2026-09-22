@@ -31,7 +31,6 @@ const RULE_LABELS = {
   mixed_alphanumeric: "letters mixed with numbers",
   mask_or_symbol: "symbols or punctuation standing in for letters",
   internal_punctuation: "punctuation breaking up a word",
-  repeated_run: "stretched or repeated letters",
   separated_letters: "letters spaced apart",
   edit_distance: "close to an ordinary English word, but not an exact match",
   compacted_separated_letters: "spaced-out letters that form a word when joined",
@@ -413,7 +412,6 @@ function detectStructural(text, lexicon) {
     if ([...surface].some(isAlpha) && [...surface].some(isDigit)) rules.push("mixed_alphanumeric");
     if (/\w[*#$@_?!]+\w|\w[*#$@_?!]+$|^[*#$@_?!]+\w/u.test(surface)) rules.push("mask_or_symbol");
     if (/(?<=\w)[^\w\s](?=\w)/u.test(surface)) rules.push("internal_punctuation");
-    if (/(.)\1{2,}/u.test(pythonCasefold(surface))) rules.push("repeated_run");
     if (rules.length) {
       spans.push({
         start: window.start,
