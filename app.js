@@ -6,6 +6,8 @@ const status = document.getElementById("status");
 const scanButton = document.getElementById("scan");
 const tableBody = document.querySelector("#table tbody");
 
+const DEFAULT_TEXT = "Please notice how h3llo and w0rld can hide inside l33t $peak, how an @ltered $pelling or un.us.ual m!xed t#xt can still be read, how s p a c e d letters and 4lphanumeric 5ubstitutions keep the original word in view, and how intern.al punc.tuation, a lookalike pаssw0rd, a d0llar, a c@t, a b00k, some t7ext, and n.o.t.e.s all count as altered words in this paragraph.";
+
 let lexicon = null;
 
 function escapeHtml(text) {
@@ -64,8 +66,9 @@ async function boot() {
   try {
     lexicon = await loadLexicon();
     scanButton.disabled = false;
+    if (!input.value.trim()) input.value = DEFAULT_TEXT;
     status.textContent = "Ready.";
-    render({ text: "", rows: [] });
+    scan();
   } catch (error) {
     status.textContent = "Could not load the local dictionary.";
     console.error(error);
